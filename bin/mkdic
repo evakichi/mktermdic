@@ -1,6 +1,6 @@
 #!/bin/bash
 
-INSTALL_DIR=~/NLP/bin/
+INSTALL_DIR=~/mktermdic/bin/
 
 CWD=$(pwd)
 
