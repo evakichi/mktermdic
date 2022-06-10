@@ -1,0 +1,2 @@
+# mktermdic
+Make term dictionary
