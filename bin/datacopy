@@ -1,0 +1,12 @@
+#!/bin/bash
+
+if [ $# -ne 2 ];then echo "wrong arguments!!"; exit;fi
+
+SRC=$1
+DST=$2
+
+find ${SRC} -name \*.txt | xargs -I {} -P ${PARALLEL} cp -f {} ${DST} 2>&1 > /dev/null
+find ${SRC} -name \*.zip | xargs -I {} -P ${PARALLEL} unzip -D -o  {} -d ${DST} 2>&1 > /dev/null
+find ${DST} -name \*.png | xargs -I {} -P ${PARALLEL} rm {} 2>&1 > /dev/null
+
+exit 0;

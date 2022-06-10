@@ -1,0 +1,5 @@
+#!/bin/bash
+TMPFILE=$(mktemp)
+cat ${1} |./preprocess >${TMPFILE} 
+mecab -b $(cat ${TMPFILE} |wc -c |cut -d " " -f1) ${TMPFILE} | sort | uniq -c > ${2}/${TMPFILE##*/}.mcb
+trap 'rm -rf ${TMPFILE} ' TERM KILL EXIT INT

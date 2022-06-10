@@ -1,0 +1,45 @@
+#!/bin/bash
+
+INSTALL_DIR=~/NLP/bin/
+
+CWD=$(pwd)
+
+TMPDIR=$(mktemp -d)
+
+TXTDIR=${TMPDIR}/txt/
+mkdir -p ${TXTDIR}
+MCBDIR=${TMPDIR}/mcb/
+mkdir -p ${MCBDIR}
+
+PARALLEL=20
+export PARALLEL
+
+CWD=$(pwd)
+
+cd ${INSTALL_DIR}
+
+if [ $# -ne 1 ];then echo "wrong arguments!!"; exit;fi
+SRC=${1}
+
+./datacopy ${SRC} ${TXTDIR}
+
+FILES=$(find ${TXTDIR} -name \*.txt | wc -l | cut -d " " -f1)
+
+echo "Making dictionary from ${FILES} Text file(s)(${PARALLEL} proc(s))."
+
+find ${TXTDIR} -maxdepth 1 -name \*.txt  | tr '\n' '\0' | xargs -0 -I {} -P ${PARALLEL} ./modeling {} ${MCBDIR}
+
+
+C=$(find ${MCBDIR} -name \*.mcb|wc -l)
+while [ ${C} -gt 1 ]
+do
+	find ${MCBDIR} -maxdepth 1 -name \*.mcb | tr '\n' '\0' | xargs -0 -L 2 -P ${PARALLEL} ./merge_dic
+        C=$(find ${MCBDIR} -name \*.mcb|wc -l)
+done
+
+cd ${CWD}
+cp $(find ${MCBDIR} -name \*.mcb) ${CWD}/$(date +%Y%m%d-%H%M%S).dic
+
+trap 'rm -rf ${TMPDIR} ${TXTDIR} ${MCBDIR}' INT TERM EXIT KILL
+exit 0;
+
